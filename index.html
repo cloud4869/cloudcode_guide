@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 完全攻略本 — AIエージェント冒険の書</title>
+<style>
+/* ============================================================
+   FONTS & RESET
+============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@600;900&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:#f0ece6;
+  color:#1a1610;
+  font-family:'Noto Sans JP',sans-serif;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+
+/* ============================================================
+   CSS CUSTOM PROPS
+============================================================ */
+:root{
+  --gold:      #c8942a;
+  --gold-lt:   #e8c060;
+  --gold-dk:   #8a6010;
+  --ice:       #4a9db8;
+  --ice-lt:    #8ecce0;
+  --dark:      #0e0c08;
+  --dark2:     #1c1810;
+  --dark3:     #2a2418;
+  --parchment: #f0ece6;
+  --parch2:    #e4ddd4;
+  --text-on-dark: #e8dfc8;
+  --text-sub:  #b0a888;
+  --accent:    #c8942a;
+}
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--dark2)}
+::-webkit-scrollbar-thumb{background:var(--gold-dk);border-radius:3px}
+
+/* ============================================================
+   WATERMARK BACKGROUND PATTERN
+   (Like MH Iceborne's ornamental watermark)
+============================================================ */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(200,148,42,.06) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='40' fill='none' stroke='%23c8942a' stroke-width='.4' opacity='.15'/%3E%3Ccircle cx='60' cy='60' r='28' fill='none' stroke='%23c8942a' stroke-width='.3' opacity='.1'/%3E%3Cpath d='M60 20 L68 44 L95 44 L73 59 L81 83 L60 68 L39 83 L47 59 L25 44 L52 44 Z' fill='none' stroke='%23c8942a' stroke-width='.3' opacity='.08'/%3E%3C/svg%3E");
+  background-size:auto,120px 120px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ============================================================
+   SITE HEADER — fixed, MH-style dark teal
+============================================================ */
+#site-header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(10,18,24,.92);
+  border-bottom:2px solid var(--gold-dk);
+  backdrop-filter:blur(10px);
+  transition:background .3s;
+}
+.sh-inner{
+  max-width:1280px;margin:0 auto;
+  padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:20px;
+}
+.sh-logo{
+  display:flex;align-items:center;gap:10px;
+  color:var(--gold-lt);
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.sh-logo svg{width:32px;height:32px;flex-shrink:0}
+.sh-nav{
+  display:flex;gap:0;margin-left:auto;
+}
+.sh-nav a{
+  color:rgba(220,210,180,.7);font-size:.68rem;
+  padding:6px 11px;letter-spacing:.05em;
+  font-weight:600;white-space:nowrap;
+  border-left:1px solid rgba(255,255,255,.05);
+  transition:color .2s,background .2s;
+}
+.sh-nav a:hover,.sh-nav a.active{
+  color:var(--gold-lt);
+  background:rgba(200,148,42,.15);
+}
+.sh-cta{
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold));
+  color:#fff;font-size:.68rem;font-weight:900;
+  padding:7px 16px;border-radius:2px;
+  letter-spacing:.08em;margin-left:8px;
+  transition:opacity .2s;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;line-height:1.3;
+}
+.sh-cta:hover{opacity:.85}
+.sh-cta small{font-size:.52rem;font-weight:400;opacity:.8}
+
+/* Hamburger */
+.sh-ham{
+  display:none;flex-direction:column;gap:5px;cursor:pointer;
+  padding:8px;margin-left:auto;
+}
+.sh-ham span{
+  width:22px;height:2px;background:var(--gold-lt);
+  display:block;transition:.3s;border-radius:1px;
+}
+
+/* Mobile nav */
+@media(max-width:900px){
+  .sh-nav{
+    display:none;flex-direction:column;
+    position:fixed;top:56px;left:0;right:0;
+    background:rgba(10,18,24,.97);
+    border-bottom:2px solid var(--gold-dk);
+    padding:12px 0;
+  }
+  .sh-nav.open{display:flex}
+  .sh-nav a{border-left:none;border-top:1px solid rgba(255,255,255,.04);padding:11px 24px}
+  .sh-ham{display:flex}
+  .sh-cta{display:none}
+}
+
+/* ============================================================
+   MUSIC BUTTON
+============================================================ */
+#music-btn{
+  position:fixed;bottom:24px;right:24px;z-index:900;
+  width:52px;height:52px;border-radius:50%;border:none;
+  cursor:pointer;
+  background:radial-gradient(circle,#2a1c08,#1a1008);
+  border:2px solid var(--gold-dk);
+  box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 0 1px rgba(200,148,42,.2);
+  display:flex;align-items:center;justify-content:center;
+  transition:.3s;
+}
+#music-btn:hover{border-color:var(--gold-lt);box-shadow:0 4px 24px rgba(200,148,42,.3)}
+#music-btn svg{width:22px;height:22px;stroke:var(--gold-lt);fill:none;stroke-width:2;stroke-linecap:round}
+#music-btn.playing{border-color:var(--gold-lt);box-shadow:0 0 20px rgba(200,148,42,.4)}
+
+/* ============================================================
+   HERO — full viewport, slide_01 as background
+============================================================ */
+#hero{
+  position:relative;
+  height:100vh;min-height:600px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#hero-bg{
+  position:absolute;inset:0;
+  background:url('slides/slide_01.png') center center/cover no-repeat;
+  transform:scale(1.05);
+  transition:transform 8s ease;
+}
+#hero-bg.loaded{transform:scale(1)}
+#hero-overlay{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(10,12,8,.3) 0%,rgba(10,12,8,.1) 40%,rgba(10,12,8,.5) 80%,rgba(10,12,8,.95) 100%),
+    linear-gradient(90deg,rgba(10,12,8,.6) 0%,transparent 60%);
+}
+.hero-content{
+  position:relative;z-index:2;
+  text-align:center;
+  padding:0 24px;
+  max-width:900px;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  color:var(--gold-lt);font-size:.72rem;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;
+  margin-bottom:18px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';width:40px;height:1px;background:currentColor;opacity:.6;
+}
+.hero-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(2.4rem,6vw,5rem);
+  font-weight:900;color:#fff;
+  line-height:1.1;
+  letter-spacing:.04em;
+  text-shadow:0 4px 40px rgba(0,0,0,.8);
+  margin-bottom:12px;
+}
+.hero-title span{
+  display:block;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold),var(--gold-dk));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-ja{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(.9rem,2vw,1.3rem);
+  color:var(--text-on-dark);
+  letter-spacing:.2em;margin-bottom:28px;
+  opacity:.9;
+}
+.hero-tags{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:36px;
+}
+.hero-tag{
+  border:1px solid rgba(200,148,42,.5);
+  color:rgba(220,200,150,.9);
+  font-size:.68rem;letter-spacing:.1em;font-weight:700;
+  padding:5px 14px;
+}
+.hero-scroll{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  z-index:2;color:var(--gold-lt);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  animation:bounce-down 2s ease-in-out infinite;
+  cursor:pointer;
+}
+.hero-scroll svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+@keyframes bounce-down{
+  0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(8px)}
+}
+
+/* ============================================================
+   CHAPTER SECTION — MH Iceborne hunting page style
+============================================================ */
+.chapter{
+  position:relative;
+  background:var(--parchment);
+  z-index:1;
+}
+
+/* Chapter divider header */
+.chap-header{
+  position:relative;
+  background:var(--dark2);
+  padding:60px 24px 50px;
+  text-align:center;
+  overflow:hidden;
+}
+.chap-header::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at center,rgba(200,148,42,.1) 0%,transparent 70%);
+}
+.chap-header-bg{
+  position:absolute;inset:0;
+  background:center/cover no-repeat;
+  opacity:.18;
+}
+.chap-label{
+  position:relative;z-index:1;
+  color:var(--gold);font-size:.7rem;
+  letter-spacing:.3em;font-weight:700;text-transform:uppercase;
+  font-family:'Cinzel',serif;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-bottom:14px;
+}
+.chap-label::before,.chap-label::after{
+  content:'';width:50px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold));
+}
+.chap-label::after{
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+.chap-en{
+  position:relative;z-index:1;
+  font-family:'Cinzel',serif;
+  font-size:clamp(2.2rem,5vw,4rem);
+  font-weight:900;color:#fff;
+  letter-spacing:.04em;
+  line-height:1.1;
+  text-shadow:0 2px 20px rgba(0,0,0,.6);
+}
+.chap-ja{
+  position:relative;z-index:1;
+  font-size:clamp(.9rem,2vw,1.1rem);
+  color:var(--text-sub);
+  margin-top:8px;letter-spacing:.15em;
+  font-family:'Noto Serif JP',serif;
+}
+
+/* Ornate frame border around section headers */
+.ornate-frame{
+  position:relative;
+  border:1px solid rgba(200,148,42,.35);
+  margin:0 auto;
+  max-width:700px;
+  padding:28px 40px;
+}
+.ornate-frame::before,.ornate-frame::after{
+  content:'';position:absolute;
+  width:12px;height:12px;
+  border:2px solid var(--gold);
+}
+.ornate-frame::before{top:-2px;left:-2px;border-right:none;border-bottom:none}
+.ornate-frame::after{bottom:-2px;right:-2px;border-left:none;border-top:none}
+
+/* ============================================================
+   FULL-IMAGE SECTION (like MH hunting page sections)
+============================================================ */
+.img-section{
+  position:relative;
+  min-height:500px;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+.img-section-bg{
+  position:absolute;inset:0;
+  background:center/cover no-repeat;
+  transition:transform .6s ease;
+}
+.img-section:hover .img-section-bg{transform:scale(1.02)}
+.img-section-overlay{
+  position:absolute;inset:0;
+}
+.overlay-left{
+  background:linear-gradient(90deg,rgba(10,10,8,.85) 0%,rgba(10,10,8,.6) 50%,transparent 100%);
+}
+.overlay-right{
+  background:linear-gradient(270deg,rgba(10,10,8,.85) 0%,rgba(10,10,8,.6) 50%,transparent 100%);
+}
+.overlay-full{
+  background:linear-gradient(180deg,rgba(10,10,8,.3) 0%,rgba(10,10,8,.65) 100%);
+}
+.img-section-content{
+  position:relative;z-index:2;
+  max-width:1280px;width:100%;
+  margin:0 auto;padding:60px 48px;
+}
+.img-section.right-text .img-section-content{
+  display:flex;justify-content:flex-end;
+}
+.text-block{
+  max-width:500px;
+}
+.text-block.wide{max-width:680px}
+.tb-label{
+  color:var(--gold);font-size:.68rem;
+  letter-spacing:.25em;font-weight:700;font-family:'Cinzel',serif;
+  margin-bottom:10px;display:flex;align-items:center;gap:10px;
+}
+.tb-label::after{content:'';flex:1;max-width:40px;height:1px;background:var(--gold)}
+.tb-en{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.6rem,3.5vw,2.8rem);
+  font-weight:900;color:#fff;
+  line-height:1.15;margin-bottom:6px;
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
+}
+.tb-ja{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(.85rem,1.8vw,1.1rem);
+  color:var(--gold-lt);margin-bottom:20px;
+  letter-spacing:.1em;
+}
+.tb-desc{
+  font-size:clamp(.8rem,1.5vw,.95rem);
+  color:rgba(220,210,185,.85);
+  line-height:1.8;
+}
+
+/* Parchment content area */
+.parch-section{
+  background:var(--parchment);
+  padding:60px 24px;
+  position:relative;
+  z-index:1;
+}
+.parch-section::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,transparent,var(--gold-dk),var(--gold),var(--gold-dk),transparent);
+}
+.parch-inner{max-width:1200px;margin:0 auto}
+
+/* ============================================================
+   CARD GRID — parchment cards
+============================================================ */
+.card-grid{
+  display:grid;gap:2px;
+  background:rgba(200,148,42,.2);
+  border:1px solid rgba(200,148,42,.25);
+}
+.card-grid.col2{grid-template-columns:repeat(2,1fr)}
+.card-grid.col3{grid-template-columns:repeat(3,1fr)}
+.card-grid.col4{grid-template-columns:repeat(4,1fr)}
+
+.pg-card{
+  background:var(--parch2);
+  padding:28px 24px;
+  display:flex;flex-direction:column;gap:10px;
+  transition:.2s;cursor:default;
+  position:relative;overflow:hidden;
+}
+.pg-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold),var(--gold-dk));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s;
+}
+.pg-card:hover::before{transform:scaleX(1)}
+.pg-card:hover{background:#ece5d8}
+
+.pg-icon{
+  width:56px;height:56px;
+  background:linear-gradient(145deg,var(--dark2),var(--dark3));
+  border:1px solid rgba(200,148,42,.3);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.pg-icon svg{width:28px;height:28px;stroke:var(--gold-lt);fill:none;stroke-width:1.6;stroke-linecap:round}
+
+.pg-label{
+  font-family:'Cinzel',serif;font-size:.65rem;
+  color:var(--gold);letter-spacing:.15em;font-weight:700;text-transform:uppercase;
+}
+.pg-name{
+  font-size:1.05rem;font-weight:900;color:var(--dark);
+  font-family:'Noto Serif JP',serif;line-height:1.3;
+}
+.pg-sub{font-size:.72rem;color:#8a7a60;font-weight:600}
+.pg-desc{font-size:.78rem;color:#4a4030;line-height:1.7}
+
+/* Highlighted card */
+.pg-card.featured{
+  background:linear-gradient(145deg,#2a1c08,#1c1408);
+  color:var(--text-on-dark);
+}
+.pg-card.featured .pg-name{color:var(--gold-lt)}
+.pg-card.featured .pg-sub{color:var(--text-sub)}
+.pg-card.featured .pg-desc{color:rgba(220,200,160,.8)}
+.pg-card.featured .pg-label{color:var(--gold)}
+
+/* ============================================================
+   COMMAND GRID — dark terminal style
+============================================================ */
+.cmd-grid{
+  display:grid;gap:2px;background:rgba(200,148,42,.15);
+  border:1px solid rgba(200,148,42,.2);
+}
+.cmd-grid.col3{grid-template-columns:repeat(3,1fr)}
+.cmd-cell{
+  background:#1a1408;
+  padding:22px 20px;
+  display:flex;flex-direction:column;gap:7px;
+  transition:.2s;
+}
+.cmd-cell:hover{background:#221c0c}
+.cmd-code{
+  font-family:'Courier New',monospace;font-weight:700;
+  font-size:.78rem;letter-spacing:.05em;
+  background:rgba(200,148,42,.12);color:#7adca0;
+  display:inline-block;padding:4px 10px;border-radius:3px;
+  border-left:3px solid #4a9db8;
+}
+.cmd-code.special{color:var(--gold-lt);border-left-color:var(--gold)}
+.cmd-name{font-size:.95rem;font-weight:900;color:var(--text-on-dark)}
+.cmd-type{font-size:.65rem;color:var(--text-sub);font-weight:700;letter-spacing:.05em}
+.cmd-desc{font-size:.78rem;color:rgba(200,185,150,.75);line-height:1.65}
+
+/* ============================================================
+   STAT BAR — dark themed
+============================================================ */
+.stat-wrap{padding:20px 24px}
+.stat-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.stat-row:last-child{margin-bottom:0}
+.stat-lbl{width:60px;font-size:.7rem;font-weight:700;color:var(--text-sub);flex-shrink:0}
+.stat-track{flex:1;height:8px;background:rgba(255,255,255,.06);border:1px solid rgba(200,148,42,.15);border-radius:4px;overflow:hidden}
+.stat-fill{height:100%;border-radius:4px;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.sf-green{background:linear-gradient(90deg,#2a7840,#50c870)}
+.sf-blue {background:linear-gradient(90deg,#2a4a90,#4a80d8)}
+.sf-red  {background:linear-gradient(90deg,#8a2010,#d84030)}
+.stat-val{width:28px;font-size:.68rem;font-weight:700;color:var(--text-sub);text-align:right}
+
+/* Mode blocks */
+.mode-block{
+  border-left:4px solid;
+  padding:16px 20px;margin-bottom:12px;
+  background:rgba(255,255,255,.03);
+}
+.mode-block:last-child{margin-bottom:0}
+.mode-block.safe{border-color:#50c870}
+.mode-block.mid {border-color:#4a80d8}
+.mode-block.danger{border-color:#d84030}
+.mode-head{font-weight:900;font-size:.9rem;color:var(--text-on-dark);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.mode-tag{font-size:.6rem;padding:2px 8px;border-radius:2px;font-weight:700;border:1px solid currentColor}
+.mode-desc{font-size:.76rem;color:rgba(200,185,150,.75);line-height:1.65;margin-top:10px}
+
+/* ============================================================
+   PARTY GRID
+============================================================ */
+.party-grid{display:grid;gap:2px;background:rgba(200,148,42,.15)}
+.party-grid.col4{grid-template-columns:repeat(4,1fr)}
+.party-cell{
+  background:#12100a;padding:24px 16px;
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:.2s;
+}
+.party-cell:hover{background:#1c1810}
+.party-ring{
+  width:64px;height:64px;border-radius:50%;border:3px solid;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.04);
+}
+.party-ring svg{width:30px;height:30px;fill:none;stroke-width:1.8;stroke-linecap:round}
+.pr-main{border-color:var(--gold);box-shadow:0 0 16px rgba(200,148,42,.3)}
+.pr-main svg{stroke:var(--gold)}
+.pr-exp {border-color:#4a9db8}
+.pr-exp  svg{stroke:#4a9db8}
+.pr-plan{border-color:#70b870}
+.pr-plan svg{stroke:#70b870}
+.pr-exec{border-color:#b87070}
+.pr-exec svg{stroke:#b87070}
+.party-role{font-size:.58rem;color:var(--text-sub);letter-spacing:.12em;font-weight:700;font-family:'Cinzel',serif}
+.party-name{font-size:.88rem;font-weight:900;color:var(--text-on-dark)}
+.party-desc{font-size:.68rem;color:rgba(180,165,130,.7);line-height:1.5;max-width:140px}
+
+/* ============================================================
+   MCP PORTAL GRID
+============================================================ */
+.portal-grid{display:grid;gap:2px;background:rgba(74,157,184,.15)}
+.portal-grid.col4{grid-template-columns:repeat(4,1fr)}
+.portal-cell{
+  background:#0a0e12;padding:22px 16px;
+  text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:.2s;
+}
+.portal-cell:hover{background:#0e1418}
+.portal-icon{
+  width:54px;height:54px;border-radius:8px;
+  border:1px solid rgba(74,157,184,.35);
+  background:rgba(74,157,184,.08);
+  display:flex;align-items:center;justify-content:center;
+}
+.portal-icon svg{width:28px;height:28px;stroke:var(--ice-lt);fill:none;stroke-width:1.6;stroke-linecap:round}
+.portal-name{font-size:.82rem;font-weight:900;color:#a0d8e8}
+.portal-desc{font-size:.68rem;color:rgba(140,200,220,.6);line-height:1.5;font-style:italic}
+
+/* ============================================================
+   LOOP DIAGRAM
+============================================================ */
+.loop-diagram{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:2px;background:rgba(200,148,42,.1);
+  max-width:320px;margin:0 auto;
+  border:1px solid rgba(200,148,42,.2);
+}
+.loop-node{
+  background:#12100a;
+  padding:18px 12px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:background .4s;
+}
+.loop-node.active{background:#1e1808}
+.loop-node svg{width:24px;height:24px;fill:none;stroke-width:1.8;stroke-linecap:round}
+.loop-node .ln-name{font-size:.72rem;font-weight:900;color:var(--text-on-dark)}
+.loop-node .ln-sub{font-size:.6rem;color:var(--text-sub)}
+
+/* ============================================================
+   BEFORE / AFTER
+============================================================ */
+.ba-grid{
+  display:grid;grid-template-columns:1fr 80px 1fr;
+  align-items:center;gap:0;
+}
+.ba-panel{padding:32px;text-align:center}
+.ba-before{background:linear-gradient(145deg,#1a0c0c,#120808)}
+.ba-after {background:linear-gradient(145deg,#0a1a0a,#081208)}
+.ba-lbl{
+  font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.2em;
+  font-weight:700;margin-bottom:16px;
+}
+.ba-before .ba-lbl{color:#c07070}
+.ba-after  .ba-lbl{color:#70c070}
+.ba-icon{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+}
+.ba-before .ba-icon{background:rgba(200,80,80,.12);border:1px solid rgba(200,80,80,.3)}
+.ba-after  .ba-icon{background:rgba(80,180,80,.12);border:1px solid rgba(80,180,80,.3)}
+.ba-icon svg{width:36px;height:36px;fill:none;stroke-width:1.8;stroke-linecap:round}
+.ba-before .ba-icon svg{stroke:#d07070}
+.ba-after  .ba-icon svg{stroke:#70c880}
+.ba-text{font-size:.82rem;color:rgba(200,185,150,.8);line-height:1.8}
+.ba-arrow{
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:var(--gold);
+}
+
+/* ============================================================
+   CTA SECTION
+============================================================ */
+.cta-section{
+  position:relative;
+  background:var(--dark2);
+  padding:80px 24px;
+  text-align:center;
+  overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(200,148,42,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
+.cta-en{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,4vw,3.2rem);
+  font-weight:900;color:#fff;
+  margin-bottom:8px;letter-spacing:.04em;
+}
+.cta-ja{
+  font-size:1rem;color:var(--text-sub);margin-bottom:32px;
+  font-family:'Noto Serif JP',serif;letter-spacing:.15em;
+}
+.cta-steps{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:36px;
+}
+.cta-step{
+  background:rgba(200,148,42,.08);
+  border:1px solid rgba(200,148,42,.3);
+  padding:20px 24px;min-width:160px;
+  text-align:center;
+  position:relative;
+}
+.cta-step::before{
+  content:'';position:absolute;
+  top:-1px;left:-1px;right:-1px;bottom:-1px;
+  border:1px solid transparent;
+  transition:border-color .3s;
+}
+.cta-step:hover::before{border-color:var(--gold)}
+.step-num{
+  font-family:'Cinzel',serif;font-size:.58rem;
+  color:var(--gold);letter-spacing:.15em;margin-bottom:8px;display:block;
+}
+.step-txt{font-size:.8rem;color:var(--text-on-dark);font-weight:700;line-height:1.5}
+
+.btn-gold{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold),var(--gold-lt),var(--gold));
+  background-size:200% 100%;
+  color:#1a1008;font-weight:900;font-size:.85rem;
+  padding:14px 40px;letter-spacing:.1em;
+  border:none;cursor:pointer;
+  transition:background-position .4s,transform .2s;
+  font-family:'Cinzel',serif;text-transform:uppercase;
+}
+.btn-gold:hover{background-position:100% 0;transform:translateY(-2px)}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer{
+  background:var(--dark);
+  border-top:3px solid var(--gold-dk);
+  padding:40px 24px;text-align:center;
+}
+.foot-logo{
+  font-family:'Cinzel',serif;font-size:1rem;
+  color:var(--gold-lt);letter-spacing:.15em;margin-bottom:8px;
+}
+.foot-sub{font-size:.72rem;color:var(--text-sub);letter-spacing:.08em}
+.foot-dec{
+  width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-dk),transparent);
+  margin:16px auto;
+}
+
+/* ============================================================
+   SECTION TRANSITIONS / SCROLL REVEAL
+============================================================ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-30px);transition:opacity .65s ease,transform .65s ease}
+.reveal-left.in{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(30px);transition:opacity .65s ease,transform .65s ease}
+.reveal-right.in{opacity:1;transform:translateX(0)}
+
+/* ============================================================
+   PARCHMENT SECTION TITLE
+============================================================ */
+.parch-title{
+  text-align:center;margin-bottom:40px;
+}
+.parch-title .pt-label{
+  font-family:'Cinzel',serif;font-size:.65rem;
+  color:var(--gold);letter-spacing:.25em;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-bottom:10px;
+}
+.parch-title .pt-label::before,.parch-title .pt-label::after{
+  content:'';width:40px;height:1px;background:var(--gold-dk);
+}
+.parch-title .pt-en{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  font-weight:900;color:var(--dark);
+  letter-spacing:.04em;
+}
+.parch-title .pt-ja{
+  font-size:.95rem;color:#6a5a40;
+  margin-top:6px;letter-spacing:.15em;
+  font-family:'Noto Serif JP',serif;
+}
+
+/* ============================================================
+   ALERT BLOCKS (dark version)
+============================================================ */
+.alert-dark{
+  border-left:4px solid;padding:14px 18px;margin-bottom:12px;
+  background:rgba(0,0,0,.2);
+}
+.alert-dark:last-child{margin-bottom:0}
+.alert-dark.red{border-color:#d05050;background:rgba(120,20,20,.2)}
+.alert-dark.gold{border-color:var(--gold);background:rgba(120,80,0,.15)}
+.ad-title{font-weight:900;font-size:.85rem;margin-bottom:4px}
+.alert-dark.red .ad-title{color:#e07070}
+.alert-dark.gold .ad-title{color:var(--gold-lt)}
+.ad-body{font-size:.76rem;color:rgba(200,185,150,.75);line-height:1.65}
+.ad-tip{margin-top:6px;font-size:.72rem;color:#70c870;font-weight:700}
+
+/* ============================================================
+   ORNATE SECTION DIVIDER
+============================================================ */
+.ornate-div{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;padding:8px 0;
+}
+.ornate-div::before,.ornate-div::after{
+  content:'';flex:1;max-width:200px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,148,42,.4));
+}
+.ornate-div::after{
+  background:linear-gradient(90deg,rgba(200,148,42,.4),transparent);
+}
+.ornate-div span{
+  color:var(--gold-dk);font-size:1rem;
+  display:flex;align-items:center;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media(max-width:960px){
+  .card-grid.col3,.card-grid.col4{grid-template-columns:repeat(2,1fr)}
+  .cmd-grid.col3{grid-template-columns:repeat(2,1fr)}
+  .party-grid.col4{grid-template-columns:repeat(2,1fr)}
+  .portal-grid.col4{grid-template-columns:repeat(2,1fr)}
+  .img-section-content{padding:48px 24px}
+  .ba-grid{grid-template-columns:1fr;gap:2px}
+  .ba-arrow{padding:12px}
+}
+@media(max-width:600px){
+  .card-grid.col2,.card-grid.col3,.card-grid.col4{grid-template-columns:1fr}
+  .cmd-grid.col3{grid-template-columns:1fr}
+  .party-grid.col4{grid-template-columns:repeat(2,1fr)}
+  .portal-grid.col4{grid-template-columns:repeat(2,1fr)}
+  .img-section{min-height:420px}
+  .img-section-content{padding:36px 20px}
+  .text-block,.text-block.wide{max-width:100%}
+  .cta-steps{flex-direction:column;align-items:center}
+  .parch-section{padding:48px 16px}
+  .chap-header{padding:48px 20px 40px}
+}
+/* ============================================================
+   SECTION MONSTER DECORATION
+============================================================ */
+.section-monster{
+  position:absolute;bottom:0;right:3%;
+  width:260px;height:260px;
+  object-fit:contain;object-position:bottom right;
+  opacity:.88;
+  filter:drop-shadow(0 8px 32px rgba(0,0,0,.6));
+  z-index:1;pointer-events:none;
+  transition:opacity .4s;
+}
+.section-monster.left{right:auto;left:3%;object-position:bottom left}
+@media(max-width:900px){.section-monster{width:160px;height:160px;opacity:.6}}
+@media(max-width:600px){.section-monster{width:110px;height:110px;opacity:.4}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SITE HEADER ════════════════════ -->
+<header id="site-header">
+  <div class="sh-inner">
+    <div class="sh-logo">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="rgba(200,148,42,.5)" stroke-width="1"/>
+        <path d="M16 5 L20 12 L28 12 L22 18 L24 26 L16 21 L8 26 L10 18 L4 12 L12 12 Z" fill="rgba(200,148,42,.15)" stroke="rgba(200,148,42,.7)" stroke-width=".8"/>
+        <path d="M21 13 Q18 10 13 11 Q9 13 9 17 Q9 21 13 23 Q17 24 20 22" stroke="rgba(200,148,42,.9)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      Claude Code 攻略本
+    </div>
+    <nav class="sh-nav" id="sh-nav">
+      <a href="#s-evo">進化</a>
+      <a href="#s-cls">クラス</a>
+      <a href="#s-mod">モード</a>
+      <a href="#s-spl">呪文</a>
+      <a href="#s-prm">詠唱</a>
+      <a href="#s-skl">スキル</a>
+      <a href="#s-pty">パーティ</a>
+      <a href="#s-mcp">MCP</a>
+      <a href="#s-lop">自律ループ</a>
+      <a href="#s-dgr">危険地帯</a>
+    </nav>
+    <div class="sh-cta" onclick="document.getElementById('music-btn').click()">
+      START<br><small>BGM ON</small>
+    </div>
+    <div class="sh-ham" id="sh-ham" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ MUSIC BTN ═══════════════════════ -->
+<audio id="bgm-audio" src="静謐なる旅路.wav" loop preload="none"></audio>
+<button id="music-btn" aria-label="BGM">
+  <svg id="music-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+</button>
+
+<!-- ═══════════ HERO ════════════════════════════ -->
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">STRATEGY GUIDE 2026</div>
+    <h1 class="hero-title">
+      Claude Code<span>完全攻略本</span>
+    </h1>
+    <p class="hero-ja">AIエージェントと共に「日常の仕事」をハックする冒険の書</p>
+    <div class="hero-tags">
+      <span class="hero-tag">自律型AI エージェント</span>
+      <span class="hero-tag">全12章 完全収録</span>
+      <span class="hero-tag">初心者〜上級者対応</span>
+    </div>
+  </div>
+  <div class="hero-scroll" onclick="document.getElementById('s-evo').scrollIntoView({behavior:'smooth'})">
+    Scroll
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.1 — AI の進化系統
+═══════════════════════════════════════════ -->
+<section id="s-evo">
+  <!-- Full-image section: slide_02 -->
+  <div class="img-section" style="min-height:540px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#0a0c10 0%,#141820 60%,#0e0c08 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_1.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 1</div>
+        <div class="tb-en">Evolution</div>
+        <div class="tb-ja">AIの進化系統</div>
+        <div class="tb-desc">
+          「指示出し」から「完全委任」へ。<br>
+          人間がコードをコピペしてエラーを貼り付ける時代は終わり、<br>
+          AIが自らPCを操作して業務を完遂する第3世代の幕開け。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parchment detail -->
+  <div class="parch-section">
+    <div class="parch-inner">
+      <div class="card-grid col3 reveal">
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible">
+            <img src="画像/モンスター/am_1_1.png" alt="魔法使い" style="width:56px;height:56px;object-fit:contain">
+          </div>
+          <div class="pg-label">Level 1</div>
+          <div class="pg-name">魔法使い</div>
+          <div class="pg-sub">Chat GPT / テキスト生成AI</div>
+          <div class="pg-desc">文章・コードを書いてもらうだけ。人間がコピペして実行する。自動化レベル: ★☆☆</div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible">
+            <img src="画像/モンスター/am_1_5.png" alt="魔法の杖" style="width:56px;height:56px;object-fit:contain">
+          </div>
+          <div class="pg-label">Level 2</div>
+          <div class="pg-name">魔法の杖</div>
+          <div class="pg-sub">Cursor / AIエディタ</div>
+          <div class="pg-desc">コードを書き・実行し・エラーまで直す。IDEと統合してより自律的に動く。自動化レベル: ★★☆</div>
+        </div>
+        <div class="pg-card featured">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible">
+            <img src="画像/モンスター/am_1_7.png" alt="ゴーレム" style="width:56px;height:56px;object-fit:contain">
+          </div>
+          <div class="pg-label">Level 3 ★</div>
+          <div class="pg-name">自律型ゴーレム</div>
+          <div class="pg-sub">Claude Code — ここ！</div>
+          <div class="pg-desc">コード変更・実行・エラー修正・ファイル操作まで全自動。「完全委任」で業務を丸ごと任せる。自動化レベル: MAX</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.2 — クラス選択
+═══════════════════════════════════════════ -->
+<section id="s-cls">
+  <div class="img-section img-section-right" style="min-height:500px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#10080a 0%,#1a1210 60%,#0e0c08 100%)"></div>
+    <div class="img-section-overlay overlay-full"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_3.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block wide reveal">
+        <div class="tb-label">Chapter 2</div>
+        <div class="tb-en">Class Selection</div>
+        <div class="tb-ja">クラス選択</div>
+        <div class="tb-desc">
+          あなたのスキルレベルと目的に合わせて最適なスタート環境を選ぼう。<br>
+          デスクトップ版・VS Code拡張版・CLI上級版の3クラス。いつでも上位クラスに転職できる！
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section">
+    <div class="parch-inner">
+      <div class="card-grid col3 reveal">
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="画像/モンスター/am_1_2.png" alt="デスクトップ" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Beginner · Lv.1</div>
+          <div class="pg-name">デスクトップ版</div>
+          <div class="pg-sub">入門難易度 ★☆☆</div>
+          <div class="pg-desc">CLIが不要でアプリを入れるだけ。WebブラウザやGUI操作が中心。初心者の方に最適な魔法使いスタートクラス。</div>
+        </div>
+        <div class="pg-card featured">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="画像/モンスター/am_1_3.png" alt="VS Code" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Standard · Lv.2 ★推奨</div>
+          <div class="pg-name">VS Code拡張版</div>
+          <div class="pg-sub">入門難易度 ★★☆</div>
+          <div class="pg-desc">コードエディタ内でチャットと開発を並列作業。ファイル構造を把握しながら指示できるバランス最強クラス。</div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="画像/モンスター/am_1_9.png" alt="CLI" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Advanced · Lv.3</div>
+          <div class="pg-name">CLI上級版</div>
+          <div class="pg-sub">入門難易度 ★★★</div>
+          <div class="pg-desc">ターミナルで直接操作。あらゆるコマンドを組み合わせて完全制御する真の勇者スタイル。最高自由度。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.3 — パーミッションモード
+═══════════════════════════════════════════ -->
+<section id="s-mod">
+  <div class="img-section" style="min-height:480px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#080c10 0%,#101620 60%,#0a0a0a 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster left" src="画像/モンスター/am_1_4.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 3</div>
+        <div class="tb-en">Permission Mode</div>
+        <div class="tb-ja">パーミッションモード — 防具選択</div>
+        <div class="tb-desc">
+          AIにどこまで自由に動かせるか設定する「防具」。<br>
+          安全性・速度・自動化レベルのトレードオフを理解して使い分けよう。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark2);padding-top:50px;padding-bottom:50px">
+    <div class="parch-inner">
+      <div style="max-width:780px;margin:0 auto" class="reveal">
+        <div class="mode-block safe">
+          <div class="mode-head">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#50c870" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            確認モード <span class="mode-tag" style="color:#50c870;border-color:#50c870">As Before Edit</span>
+          </div>
+          <div class="stat-wrap" style="padding:0 0 10px">
+            <div class="stat-row"><div class="stat-lbl">安全性</div><div class="stat-track"><div class="stat-fill sf-green" style="width:95%"></div></div><div class="stat-val">95</div></div>
+            <div class="stat-row"><div class="stat-lbl">速度</div><div class="stat-track"><div class="stat-fill sf-blue" style="width:38%"></div></div><div class="stat-val">38</div></div>
+          </div>
+          <div class="mode-desc">ファイルを編集する前に毎回「実行していい？」と確認を求める。最初のプレイに推奨。AIの行動を一つ一つ承認できる最も安全な設定。</div>
+        </div>
+        <div class="mode-block mid">
+          <div class="mode-head">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a80d8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            計画モード <span class="mode-tag" style="color:#4a80d8;border-color:#4a80d8">Plan Mode</span>
+          </div>
+          <div class="stat-wrap" style="padding:0 0 10px">
+            <div class="stat-row"><div class="stat-lbl">安全性</div><div class="stat-track"><div class="stat-fill sf-green" style="width:74%"></div></div><div class="stat-val">74</div></div>
+            <div class="stat-row"><div class="stat-lbl">速度</div><div class="stat-track"><div class="stat-fill sf-blue" style="width:68%"></div></div><div class="stat-val">68</div></div>
+          </div>
+          <div class="mode-desc">全体の作業計画を先に提示し、人間が承認した後に一気に実装する。安全と効率のベストバランス。大規模タスクに最適。</div>
+        </div>
+        <div class="mode-block danger">
+          <div class="mode-head">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d84030" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            自動全承認 <span class="mode-tag" style="color:#d84030;border-color:#d84030">Dangerous / Auto</span>
+          </div>
+          <div class="stat-wrap" style="padding:0 0 10px">
+            <div class="stat-row"><div class="stat-lbl">安全性</div><div class="stat-track"><div class="stat-fill sf-red" style="width:12%"></div></div><div class="stat-val">12</div></div>
+            <div class="stat-row"><div class="stat-lbl">速度</div><div class="stat-track"><div class="stat-fill sf-blue" style="width:98%"></div></div><div class="stat-val">98</div></div>
+            <div class="stat-row"><div class="stat-lbl">自動化</div><div class="stat-track"><div class="stat-fill sf-red" style="width:98%"></div></div><div class="stat-val">98</div></div>
+          </div>
+          <div class="mode-desc">確認なしで爆速進行。ローカルファイルを勝手に削除されるリスクあり。隔離環境での使用を強く推奨。上級者・自動化パイプライン向け。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.4 — 魔法のコマンド
+═══════════════════════════════════════════ -->
+<section id="s-spl">
+  <div class="img-section" style="min-height:440px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#0c0a10 0%,#1a1820 60%,#0e0c08 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_9.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 4</div>
+        <div class="tb-en">Spell Book</div>
+        <div class="tb-ja">魔法のコマンド集</div>
+        <div class="tb-desc">スラッシュコマンドとキーワードを使いこなして、AIを最大限に活かそう。</div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark3)">
+    <div class="parch-inner">
+      <div class="cmd-grid col3 reveal">
+        <div class="cmd-cell">
+          <div class="cmd-code">/clear</div>
+          <div class="cmd-name">浄化魔法</div>
+          <div class="cmd-type">記憶リセット呪文</div>
+          <div class="cmd-desc">コンテキストをリセット。動作が重くなったら即使用。トークン消費を大幅に節約できる必須スペル。</div>
+        </div>
+        <div class="cmd-cell">
+          <div class="cmd-code">/compact</div>
+          <div class="cmd-name">圧縮魔法</div>
+          <div class="cmd-type">文脈圧縮呪文</div>
+          <div class="cmd-desc">会話履歴を要約し、文脈を保ったまま軽量化。長期プロジェクトで絶大な威力を発揮する。</div>
+        </div>
+        <div class="cmd-cell">
+          <div class="cmd-code">/model</div>
+          <div class="cmd-name">属性切り替え</div>
+          <div class="cmd-type">モデル変更呪文</div>
+          <div class="cmd-desc">Opus（最強）↔ Sonnet（高速・コスパ）を切り替え。タスク難易度に応じて費用対効果を最適化。</div>
+        </div>
+        <div class="cmd-cell">
+          <div class="cmd-code">/rewind</div>
+          <div class="cmd-name">巻き戻し魔法</div>
+          <div class="cmd-type">タイムリープ呪文</div>
+          <div class="cmd-desc">会話を特定ポイントまで巻き戻す。失敗・エラー時に過去の状態へ復元するローカル専用タイムリープ魔法。</div>
+        </div>
+        <div class="cmd-cell" style="background:#1c1408;border-left:3px solid var(--gold)">
+          <div class="cmd-code special">ultrathink</div>
+          <div class="cmd-name">マジックワード ★奥義</div>
+          <div class="cmd-type">超深思考キーワード</div>
+          <div class="cmd-desc">プロンプトに加えるとAIが超深く考える。複雑なアーキテクチャ設計・難解な判断に使う切り札。</div>
+        </div>
+        <div class="cmd-cell">
+          <div class="cmd-code" style="color:#70c870;border-left-color:#4a8a50">Git連携</div>
+          <div class="cmd-name">セーブポイント</div>
+          <div class="cmd-type">完全復活魔法</div>
+          <div class="cmd-desc">VS CodeのGit機能と組み合わせることで、AIがファイルを壊しても完全復活できるセーフティネット。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.5 — 呪文詠唱 / Ch.6 — スキル
+═══════════════════════════════════════════ -->
+<section id="s-prm">
+  <div class="img-section" style="min-height:460px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#080c08 0%,#101808 60%,#0a0e0a 100%)"></div>
+    <div class="img-section-overlay overlay-right"></div>
+    <img class="section-monster left" src="画像/モンスター/am_1_5.png" alt="">
+    <div class="img-section-content" style="justify-content:flex-end">
+      <div class="text-block reveal-right">
+        <div class="tb-label">Chapter 5</div>
+        <div class="tb-en">Spell Chanting</div>
+        <div class="tb-ja">呪文詠唱 — RGC公式プロンプト</div>
+        <div class="tb-desc">AIへの指示の質が結果を決める。役割・目標・制約の3要素でAIを完全制御しよう。</div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section">
+    <div class="parch-inner">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="reveal">
+        <div>
+          <div class="parch-title" style="text-align:left;margin-bottom:20px">
+            <div class="pt-label" style="justify-content:flex-start">RGC 3要素公式</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="background:var(--dark2);padding:16px 18px;border-left:4px solid #4a9db8">
+              <div style="color:#4a9db8;font-size:.65rem;font-weight:700;letter-spacing:.15em;margin-bottom:4px">ROLE — 役割</div>
+              <div style="color:var(--text-on-dark);font-size:.85rem;font-weight:700;margin-bottom:4px">「あなたは優秀なマーケターです」</div>
+              <div style="color:rgba(200,185,150,.7);font-size:.74rem;line-height:1.6">AIに人格・専門性・視点を与える。何者として振る舞うかを定義する。</div>
+            </div>
+            <div style="background:var(--dark2);padding:16px 18px;border-left:4px solid #70b870">
+              <div style="color:#70b870;font-size:.65rem;font-weight:700;letter-spacing:.15em;margin-bottom:4px">GOAL — 目標</div>
+              <div style="color:var(--text-on-dark);font-size:.85rem;font-weight:700;margin-bottom:4px">「週次レポートを爆速で作成する」</div>
+              <div style="color:rgba(200,185,150,.7);font-size:.74rem;line-height:1.6">具体的で測定可能なゴールを明確に。曖昧な指示はNG。</div>
+            </div>
+            <div style="background:var(--dark2);padding:16px 18px;border-left:4px solid var(--gold)">
+              <div style="color:var(--gold);font-size:.65rem;font-weight:700;letter-spacing:.15em;margin-bottom:4px">CONSTRAINTS — 制約</div>
+              <div style="color:var(--text-on-dark);font-size:.85rem;font-weight:700;margin-bottom:4px">「必ず日本語で箇条書きで答える」</div>
+              <div style="color:rgba(200,185,150,.7);font-size:.74rem;line-height:1.6">出力形式・言語・禁止事項を明示。ルールは絞って簡潔に。</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="parch-title" style="text-align:left;margin-bottom:20px">
+            <div class="pt-label" style="justify-content:flex-start">CLAUDE.md — 魔法の書</div>
+          </div>
+          <div style="background:var(--dark2);padding:20px;height:calc(100% - 50px)">
+            <div style="font-family:'Courier New',monospace;font-size:.75rem;color:#a8e8a0;margin-bottom:16px;background:rgba(0,0,0,.3);padding:10px;border-radius:3px"># CLAUDE.md<br>あなたはプロの開発者です。<br>必ず日本語で回答してください。<br>コードには必ずコメントを付けてください。</div>
+            <div style="font-size:.76rem;color:rgba(200,185,150,.75);line-height:1.7">
+              <span style="color:var(--gold);font-weight:700">/init</span> コマンドでフォルダを自動解析。<br>
+              <span style="font-family:'Courier New',monospace;color:#8adca0">~/.claude/claude.md</span> のグローバル設定が全プロジェクトに適用される。<br><br>
+              細かすぎるルール（100個の制約）より、<strong style="color:var(--text-on-dark)">シンプルが最善</strong>。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skill section -->
+<section id="s-skl">
+  <div class="img-section img-section-right" style="min-height:460px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#0c0808 0%,#1c1210 60%,#0e0c08 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_10.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 6</div>
+        <div class="tb-en">Skill Equipment</div>
+        <div class="tb-ja">スキル装備 — 自動化の奥義</div>
+        <div class="tb-desc">
+          <span style="font-family:'Courier New',monospace;color:#a8e8a0">.claude/skills/</span> フォルダに .md ファイルを置くだけでAIのスキルになる。<br>
+          毎回長いプロンプトを書かずに済み、MP（トークン）を大幅節約できる！
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section">
+    <div class="parch-inner">
+      <div class="card-grid col4 reveal">
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="extracted_objects_v3/slide01/slide01_obj03.png" alt="議事録" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Skill 01</div>
+          <div class="pg-name">議事録作成</div>
+          <div class="pg-desc">会議メモを渡すだけで自動整形・要約・アクション抽出まで完了。</div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="extracted_objects_v3/slide01/slide01_obj04.png" alt="データ集計" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Skill 02</div>
+          <div class="pg-name">データ集計</div>
+          <div class="pg-desc">weekly-sales-reportを選ぶだけでAIがフォーマット・保存まで完遂。</div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="extracted_objects_v3/slide01/slide01_obj02.png" alt="フロントエンド" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Skill 03</div>
+          <div class="pg-name">フロントエンド</div>
+          <div class="pg-desc">「10パターン出して」→好みを選択→実装。数撃ち戦略で最高UIを発見。</div>
+        </div>
+        <div class="pg-card featured">
+          <div class="pg-icon" style="background:none;border:none;overflow:visible"><img src="extracted_objects_v3/slide01/slide01_obj05.png" alt="カスタムスキル" style="width:56px;height:56px;object-fit:contain"></div>
+          <div class="pg-label">Custom Skill</div>
+          <div class="pg-name">カスタムスキル</div>
+          <div class="pg-desc">自分だけのスキルを自由に作れる。具体的な手順を書けば何でもスキル化できる。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.7 — パーティ召喚
+═══════════════════════════════════════════ -->
+<section id="s-pty">
+  <div class="img-section" style="min-height:480px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#060810 0%,#0e1018 60%,#060810 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster left" src="画像/モンスター/am_1_6.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 7</div>
+        <div class="tb-en">Party Summon</div>
+        <div class="tb-ja">パーティ召喚 — Agentチームシステム</div>
+        <div class="tb-desc">
+          Claude Codeは単独ではなく「チーム」として動く。<br>
+          主人公が仲間に指示を出し、複数のAIが並列で働く革命的なシステム。<br>
+          人間は「指示」するだけで仕事が完了する。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark2)">
+    <div class="parch-inner">
+      <div class="party-grid col4 reveal">
+        <div class="party-cell">
+          <div class="party-ring pr-main" style="background:none;border:none;overflow:visible;width:72px;height:72px">
+            <img src="画像/モンスター/am_1_1.png" alt="Commander" style="width:72px;height:72px;object-fit:contain">
+          </div>
+          <div class="party-role">Commander</div>
+          <div class="party-name">Main Claude</div>
+          <div class="party-desc">タスクを分析し仲間に指示を出す司令塔。あなたが話す相手。</div>
+        </div>
+        <div class="party-cell">
+          <div class="party-ring pr-exp" style="background:none;border:none;overflow:visible;width:72px;height:72px">
+            <img src="画像/モンスター/am_1_3.png" alt="Explorer" style="width:72px;height:72px;object-fit:contain">
+          </div>
+          <div class="party-role">Explorer</div>
+          <div class="party-name">探索エージェント</div>
+          <div class="party-desc">ファイルや大量情報を高速スキャン。コードベース全体を把握する専門家。</div>
+        </div>
+        <div class="party-cell">
+          <div class="party-ring pr-plan" style="background:none;border:none;overflow:visible;width:72px;height:72px">
+            <img src="画像/モンスター/am_1_5.png" alt="Strategist" style="width:72px;height:72px;object-fit:contain">
+          </div>
+          <div class="party-role">Strategist</div>
+          <div class="party-name">計画エージェント</div>
+          <div class="party-desc">調査結果から作業順序・方向性を設計する頭脳担当。</div>
+        </div>
+        <div class="party-cell">
+          <div class="party-ring pr-exec" style="background:none;border:none;overflow:visible;width:72px;height:72px">
+            <img src="画像/モンスター/am_1_7.png" alt="Executor" style="width:72px;height:72px;object-fit:contain">
+          </div>
+          <div class="party-role">Executor</div>
+          <div class="party-name">実装エージェント</div>
+          <div class="party-desc">複数体が並列で動きコード変更・実装を爆速で実行する。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.8 — MCP 異世界ポータル
+═══════════════════════════════════════════ -->
+<section id="s-mcp">
+  <div class="img-section img-section-right" style="min-height:460px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#080410 0%,#14081c 60%,#080410 100%)"></div>
+    <div class="img-section-overlay overlay-right"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_7.png" alt="">
+    <div class="img-section-content" style="justify-content:flex-end">
+      <div class="text-block reveal-right">
+        <div class="tb-label">Chapter 8</div>
+        <div class="tb-en">MCP Portal</div>
+        <div class="tb-ja">MCP — 異世界への扉</div>
+        <div class="tb-desc">
+          Model Context Protocol。ローカルPCのClaude Codeから外部サービスやアプリに直接アクセスするための「異世界ポータル」。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:#080c10">
+    <div class="parch-inner">
+      <div class="portal-grid col4 reveal">
+        <div class="portal-cell">
+          <div class="portal-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="portal-name">Google Calendar</div>
+          <div class="portal-desc">「今日の予定を見て、参加者を含めた議事録テンプレを作って」</div>
+        </div>
+        <div class="portal-cell">
+          <div class="portal-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="portal-name">Slack</div>
+          <div class="portal-desc">「先週の履歴を読んでチームの課題をレポートにまとめて」</div>
+        </div>
+        <div class="portal-cell">
+          <div class="portal-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg></div>
+          <div class="portal-name">Playwright</div>
+          <div class="portal-desc">「Webアプリを自動操作してバグなしで全機能テストして」</div>
+        </div>
+        <div class="portal-cell">
+          <div class="portal-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+          <div class="portal-name">カスタムMCP</div>
+          <div class="portal-desc">自社システム・社内API・独自ツールにも接続可能！</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.9 — 自律ループ
+═══════════════════════════════════════════ -->
+<section id="s-lop">
+  <div class="img-section" style="min-height:480px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#040c10 0%,#081418 60%,#040a0e 100%)"></div>
+    <div class="img-section-overlay overlay-left"></div>
+    <img class="section-monster left" src="画像/モンスター/am_1_2.png" alt="">
+    <div class="img-section-content">
+      <div class="text-block reveal-left">
+        <div class="tb-label">Chapter 9</div>
+        <div class="tb-en">Autonomous Loop</div>
+        <div class="tb-ja">自律ループ — AIが自己修復する</div>
+        <div class="tb-desc">
+          AIが実行→エラー→ログ読む→コード修正→再実行…を<strong style="color:var(--gold-lt)">人間なしで繰り返す</strong>。<br>
+          人間は画面を見守り「承認」か「軌道修正」するだけで仕事が進む。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark2)">
+    <div class="parch-inner">
+      <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;justify-content:center" class="reveal">
+        <div class="loop-diagram">
+          <div class="loop-node" id="ln0">
+            <svg viewBox="0 0 24 24" style="stroke:#70c870"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <div class="ln-name">実行</div><div class="ln-sub">コードを走らせる</div>
+          </div>
+          <div class="loop-node" id="ln1">
+            <svg viewBox="0 0 24 24" style="stroke:#d07070"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div class="ln-name">エラー検知</div><div class="ln-sub">問題を把握</div>
+          </div>
+          <div class="loop-node" id="ln2">
+            <svg viewBox="0 0 24 24" style="stroke:#70a8d0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="ln-name">ログ解析</div><div class="ln-sub">AIが読む</div>
+          </div>
+          <div class="loop-node" id="ln3">
+            <svg viewBox="0 0 24 24" style="stroke:var(--gold)"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>
+            <div class="ln-name">コード修正</div><div class="ln-sub">AIが自動修正</div>
+          </div>
+        </div>
+        <div style="max-width:420px;color:rgba(200,185,150,.8);font-size:.85rem;line-height:1.8">
+          <p style="margin-bottom:12px">AIが <strong style="color:var(--gold-lt)">実行→エラー→ログ解析→修正</strong> を人間なしで繰り返す。人間は「承認」か「軌道修正」するだけ。</p>
+          <p style="font-size:.78rem;color:rgba(160,145,110,.7)">割り込み処理（Interrupts）：AIの思考が止まっている最中でも指示を差し込める。並列で複数タスクも完遂する次世代スタイル。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.10 — 危険地帯 / Ch.11 モンスター
+═══════════════════════════════════════════ -->
+<section id="s-dgr">
+  <div class="img-section" style="min-height:460px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#120408 0%,#1c0810 60%,#120408 100%)"></div>
+    <div class="img-section-overlay overlay-right"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_8.png" alt="">
+    <div class="img-section-content" style="justify-content:flex-end">
+      <div class="text-block reveal-right">
+        <div class="tb-label">Chapter 10 · 11</div>
+        <div class="tb-en">Danger Zone</div>
+        <div class="tb-ja">危険地帯 &amp; モンスター図鑑</div>
+        <div class="tb-desc">強力な魔法には代償がある。知らずに踏み込むと痛い目を見るトラップと、日常業務に潜む「モンスター」たちを覚えておこう。</div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark2)">
+    <div class="parch-inner">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="reveal">
+        <div>
+          <div style="color:var(--gold-lt);font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.2em;margin-bottom:14px">DANGER ZONE</div>
+          <div class="alert-dark red">
+            <div class="ad-title">🔋 トークン管理（MP枯渇）</div>
+            <div class="ad-body">利用回数・トークン上限に注意。特にOpusモデルは消費が激しい。長時間の会話はコンテキスト肥大化を招く。</div>
+            <div class="ad-tip">💡 /clear や /compact でMP節約。OpusとSonnetを使い分けよう。</div>
+          </div>
+          <div class="alert-dark red">
+            <div class="ad-title">🔐 機密情報の保護（Security）</div>
+            <div class="ad-body">APIキー・パスワードが書かれた .env ファイルは絶対に読ませない。プロンプトインジェクションリスクに注意。</div>
+            <div class="ad-tip">💡 .gitignore と .claudeignore で機密ファイルを除外。Dangerousモードは隔離環境のみ。</div>
+          </div>
+        </div>
+        <div>
+          <div style="color:var(--gold-lt);font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.2em;margin-bottom:14px">MONSTER ENCYCLOPEDIA</div>
+          <div class="card-grid col2" style="gap:2px">
+            <div class="pg-card" style="background:#1a0c0c;padding:16px 14px">
+              <div class="pg-label" style="color:#d07070">ASAP魔</div>
+              <div class="pg-name" style="color:#e09090;font-size:.9rem">「急ぎでやって！」</div>
+              <div class="pg-desc" style="color:rgba(200,150,150,.7)">突然現れて時間を奪うボス</div>
+              <div style="font-size:.7rem;color:#70c870;font-weight:700;margin-top:6px">→ 議事録スキルで撃退</div>
+            </div>
+            <div class="pg-card" style="background:#0c0c1a;padding:16px 14px">
+              <div class="pg-label" style="color:#7070d0">クレーマー</div>
+              <div class="pg-name" style="color:#9090e0;font-size:.9rem">「16時に出現」</div>
+              <div class="pg-desc" style="color:rgba(150,150,200,.7)">要求が変わり続ける中ボス</div>
+              <div style="font-size:.7rem;color:#70c870;font-weight:700;margin-top:6px">→ Planモードで対処</div>
+            </div>
+            <div class="pg-card" style="background:#0c1a0c;padding:16px 14px">
+              <div class="pg-label" style="color:#70d070">ねたみ</div>
+              <div class="pg-name" style="color:#90e090;font-size:.9rem">「なんで速いの？」</div>
+              <div class="pg-desc" style="color:rgba(150,200,150,.7)">不思議がる同僚キャラ</div>
+              <div style="font-size:.7rem;color:#70c870;font-weight:700;margin-top:6px">→ AIを紹介して仲間に</div>
+            </div>
+            <div class="pg-card" style="background:#1a1208;padding:16px 14px">
+              <div class="pg-label" style="color:#d09050">AI暴走</div>
+              <div class="pg-name" style="color:#e0b070;font-size:.9rem">「制御不能状態」</div>
+              <div class="pg-desc" style="color:rgba(200,170,100,.7)">ファイルを壊し始める</div>
+              <div style="font-size:.7rem;color:#70c870;font-weight:700;margin-top:6px">→ /rewind で時を戻す</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     Ch.12 — 最終章 Before / After
+═══════════════════════════════════════════ -->
+<section id="s-fin">
+  <div class="img-section" style="min-height:500px">
+    <div class="img-section-bg" style="background:linear-gradient(135deg,#0c0a06 0%,#1a1810 60%,#0c0a06 100%)"></div>
+    <div class="img-section-overlay overlay-full"></div>
+    <img class="section-monster" src="画像/モンスター/am_1_1.png" alt="" style="width:320px;height:320px;right:6%">
+    <div class="img-section-content" style="justify-content:center;text-align:center">
+      <div class="text-block wide reveal" style="max-width:680px;text-align:center">
+        <div class="tb-label" style="justify-content:center">Final Chapter</div>
+        <div class="tb-en" style="font-size:clamp(2rem,5vw,3.8rem)">Before &amp; After</div>
+        <div class="tb-ja">最終章 — AIと共に歩む未来</div>
+        <div class="tb-desc" style="text-align:center">
+          Claude Codeを手に入れた後の世界を見てみよう。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="parch-section" style="background:var(--dark);padding:0">
+    <div class="ba-grid">
+      <div class="ba-panel ba-before">
+        <div class="ba-lbl">⏪ BEFORE</div>
+        <div class="ba-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="ba-text">ファイルを手で選び、コピペを繰り返し、エラーを貼り付けて…この時代は終わった。</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-panel ba-after">
+        <div class="ba-lbl">✨ AFTER</div>
+        <div class="ba-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="ba-text">業務マニュアル（skill）を持たせ、外部ツール（MCP）を繋げれば、PCに優秀な自律型チームが誕生する。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA SECTION ═════════════════════ -->
+<div class="cta-section">
+  <div class="cta-inner reveal">
+    <div style="color:var(--gold);font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.3em;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:14px">
+      <span style="flex:1;max-width:80px;height:1px;background:var(--gold-dk);display:block"></span>
+      BEGIN YOUR QUEST
+      <span style="flex:1;max-width:80px;height:1px;background:var(--gold-dk);display:block"></span>
+    </div>
+    <div class="cta-en">今すぐ冒険を<br>始めよう</div>
+    <div class="cta-ja">一歩踏み出せば、あなたはもう冒険者だ</div>
+    <div class="cta-steps">
+      <div class="cta-step"><span class="step-num">STEP 01</span><div class="step-txt">VS Code + Claude Code<br>拡張をインストール</div></div>
+      <div class="cta-step"><span class="step-num">STEP 02</span><div class="step-txt">/init で CLAUDE.md<br>を自動生成する</div></div>
+      <div class="cta-step"><span class="step-num">STEP 03</span><div class="step-txt">最初のスキルを<br>装備して出発！</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FOOTER ══════════════════════════ -->
+<footer>
+  <div class="foot-logo">Claude Code 完全攻略本</div>
+  <div class="foot-dec"></div>
+  <div class="foot-sub">AIエージェントと共に冒険の旅へ &nbsp;·&nbsp; Powered by Claude &nbsp;·&nbsp; Made with ♥</div>
+  <div class="foot-sub" style="margin-top:12px;font-size:0.85em;opacity:0.7;">モンスター素材画像：綾野ゆう &nbsp;<a href="https://youayano.wixsite.com/ayatriam" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">https://youayano.wixsite.com/ayatriam</a></div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ── Hero bg load ───────── */
+window.addEventListener('load',()=>{
+  const bg=document.getElementById('hero-bg');
+  bg.style.backgroundImage="url('slides/slide_01.png')";
+  setTimeout(()=>bg.classList.add('loaded'),100);
+});
+
+/* ── Nav toggle (mobile) ── */
+function toggleNav(){
+  const nav=document.getElementById('sh-nav');
+  nav.classList.toggle('open');
+}
+
+/* ── Scroll reveal ──────── */
+const rvObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');rvObs.unobserve(e.target)}});
+},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>rvObs.observe(el));
+
+/* ── Stat bars ─────────── */
+document.querySelectorAll('.stat-fill').forEach(b=>{
+  const w=b.style.width;b.style.width='0%';
+  new IntersectionObserver(([e])=>{
+    if(e.isIntersecting){setTimeout(()=>b.style.width=w,200);e.target.remove()}
+  },{threshold:.5}).observe(b);
+});
+
+/* ── Autonomous loop ────── */
+const lnIds=['ln0','ln1','ln2','ln3'];let li=0;
+setInterval(()=>{
+  lnIds.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active')});
+  const el=document.getElementById(lnIds[li]);if(el)el.classList.add('active');
+  li=(li+1)%4;
+},750);
+
+/* ── Nav active ─────────── */
+const secs=document.querySelectorAll('section[id]');
+const navAs=document.querySelectorAll('.sh-nav a');
+let ticking=false;
+window.addEventListener('scroll',()=>{
+  if(!ticking){requestAnimationFrame(()=>{
+    let cur='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-80)cur=s.id});
+    navAs.forEach(a=>{
+      const on=a.getAttribute('href')==='#'+cur;
+      a.classList.toggle('active',on);
+    });
+    ticking=false;
+  });ticking=true;}
+},{passive:true});
+
+/* ── Parallax hero ─────── */
+window.addEventListener('scroll',()=>{
+  const bg=document.getElementById('hero-bg');
+  if(bg&&window.scrollY<window.innerHeight){
+    bg.style.transform=`scale(1.05) translateY(${window.scrollY*.3}px)`;
+  }
+},{passive:true});
+
+/* ── BGM (WAV) ────────────── */
+const btn=document.getElementById('music-btn');
+const ico=document.getElementById('music-icon');
+const bgmAudio=document.getElementById('bgm-audio');
+let playing=false;
+
+btn.addEventListener('click',async()=>{
+  if(!playing){
+    try{
+      bgmAudio.volume=0.72;
+      await bgmAudio.play();
+      playing=true;
+      btn.classList.add('playing');
+      ico.innerHTML='<line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>';
+    }catch(e){console.warn('BGM play failed:',e)}
+  }else{
+    bgmAudio.pause();
+    playing=false;
+    btn.classList.remove('playing');
+    ico.innerHTML='<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>';
+  }
+});
+
+console.log('%c ⚔ Claude Code 完全攻略本 ⚔ ','background:#2a1c08;color:#c8942a;font-size:15px;font-weight:bold;padding:6px 16px;border:1px solid #8a6010');
+</script>
+</body>
+</html>
